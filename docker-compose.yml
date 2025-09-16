@@ -1,0 +1,42 @@
+services:
+
+  db:
+    image: mysql:8.4.3
+    container_name: laravel11-db-v2
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: laravel
+      MYSQL_USER: laravel
+      MYSQL_PASSWORD: admin
+      TZ: America/Bogota
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -u$$MYSQL_USER -p$$MYSQL_PASSWORD -h 127.0.0.1 --silent",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - dbdata-laravel11:/var/lib/mysql
+    ports:
+      - "3308:3306"
+
+  redis:
+    image: redis:7
+    container_name: laravel11-redis-v2
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6380:6379"
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: laravel11-mailpit-v2
+    ports:
+      - "8026:8025" # UI
+      - "1026:1025" # SMTP
+
+volumes:
+  dbdata-laravel11:
